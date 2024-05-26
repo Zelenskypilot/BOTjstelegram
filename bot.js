@@ -19,8 +19,8 @@ bot.start((ctx) => {
 });
 
 // Callback handler for button clicks
-bot.action(/.+/, (ctx) => {
-    const loanAmount = ctx.match[0];
+bot.action(/(\d+)/, (ctx) => {
+    const loanAmount = ctx.match[1];
     const user = ctx.from;
     ctx.answerCbQuery();
     ctx.reply(`Dear ${user.first_name}, your loan request of ${loanAmount} Tsh has been received. The airtime will be credited to your account shortly.`);
@@ -28,7 +28,18 @@ bot.action(/.+/, (ctx) => {
 
 // Command handler for /help command
 bot.help((ctx) => {
-    ctx.reply('This bot allows you to request a loan airtime. Simply click on the desired loan amount.');
+    ctx.reply('This bot allows you to request a loan airtime. Simply click on the desired loan amount or use the /loan command followed by the amount (e.g., /loan 1000).');
+});
+
+// Command handler for /loan command
+bot.command('loan', (ctx) => {
+    const amount = ctx.message.text.split(' ')[1];
+    if (amount && !isNaN(amount)) {
+        const user = ctx.from;
+        ctx.reply(`Dear ${user.first_name}, your loan request of ${amount} Tsh has been received. The airtime will be credited to your account shortly.`);
+    } else {
+        ctx.reply('Please specify a valid loan amount after the /loan command (e.g., /loan 1000).');
+    }
 });
 
 // Start the bot
