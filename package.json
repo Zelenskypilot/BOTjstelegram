@@ -1,8 +1,8 @@
 {
-  "name": "MkopoBot",
+  "name": "loanbot",
   "version": "1.0.0",
-  "description": "Natoa mkopo wa muda wa maongezi",
-  "main": "bot.js", // or the filename where your bot code resides
+  "description": "Telegram bot for loan airtime requests",
+  "main": "bot.js",
   "dependencies": {
     "telegraf": "^4.4.2"
   }
