@@ -1,0 +1,9 @@
+{
+  "name": "MkopoBot",
+  "version": "1.0.0",
+  "description": "Natoa mkopo wa muda wa maongezi",
+  "main": "bot.js", // or the filename where your bot code resides
+  "dependencies": {
+    "telegraf": "^4.4.2"
+  }
+}
