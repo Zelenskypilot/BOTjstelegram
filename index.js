@@ -9,20 +9,46 @@ app.use(bodyParser.json());
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.BOT_TOKEN}`;
 const WEBHOOK_URL = `${process.env.SERVER_URL}/webhook`;
 
-app.post('/webhook', async (req, res) => {
-    const { message } = req.body;
+async function sendMenu(chatId) {
+    const keyboard = {
+        inline_keyboard: [
+            [{ text: 'Dodoma', callback_data: 'Dodoma' }],
+            [{ text: 'Dar es Salaam', callback_data: 'Dar_es_Salaam' }],
+            [{ text: 'Arusha', callback_data: 'Arusha' }],
+            [{ text: 'Mwanza', callback_data: 'Mwanza' }]
+        ]
+    };
 
-    if (message && message.text) {
+    try {
+        await axios.post(`${TELEGRAM_API}/sendMessage`, {
+            chat_id: chatId,
+            text: 'Choose a region:',
+            reply_markup: JSON.stringify(keyboard)
+        });
+    } catch (error) {
+        console.error('Error sending menu:', error);
+    }
+}
+
+// Handle incoming callback queries
+app.post('/webhook', async (req, res) => {
+    const { message, callback_query } = req.body;
+
+    if (message) {
+        // Handle regular messages
         const chatId = message.chat.id;
         const text = message.text.toLowerCase();
 
         if (text.includes('temperature')) {
-            const region = text.replace('temperature', '').trim();
-            const temperature = await getTemperatureForRegion(region);
-            await sendMessage(chatId, `The temperature in ${region} is ${temperature}°C`);
-        } else {
-            await sendMessage(chatId, 'Please request temperature information by typing "temperature [region]".');
+            await sendMenu(chatId); // Send menu when user requests temperature
         }
+    } else if (callback_query) {
+        // Handle callback queries from inline buttons
+        const chatId = callback_query.message.chat.id;
+        const region = callback_query.data;
+
+        const temperature = await getTemperatureForRegion(region);
+        await sendMessage(chatId, `The temperature in ${region} is ${temperature}°C`);
     }
 
     res.sendStatus(200);
@@ -53,18 +79,6 @@ async function sendMessage(chatId, text) {
     });
 }
 
-async function setWebhook() {
-    try {
-        await axios.post(`${TELEGRAM_API}/setWebhook`, {
-            url: WEBHOOK_URL,
-        });
-        console.log('Webhook set');
-    } catch (error) {
-        console.error('Error setting webhook:', error);
-    }
-}
-
 app.listen(3000, async () => {
     console.log('Server is running on port 3000');
-    await setWebhook();
 });
