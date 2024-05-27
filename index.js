@@ -7,7 +7,7 @@ const app = express();
 app.use(bodyParser.json());
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.BOT_TOKEN}`;
-const WEBHOOK_URL = `${process.env.SERVER_URL}/webhook`;
+const PORT = process.env.PORT || 3000; // Use the PORT environment variable if set, otherwise default to 3000
 
 async function sendMenu(chatId) {
     const keyboard = {
@@ -79,6 +79,10 @@ async function sendMessage(chatId, text) {
     });
 }
 
-app.listen(3000, async () => {
-    console.log('Server is running on port 3000');
+// Set keep-alive and timeout values
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
 });
+
+server.keepAliveTimeout = 120000; // 120 seconds
+server.headersTimeout = 120000; // 120 seconds
